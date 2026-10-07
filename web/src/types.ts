@@ -1,0 +1,10 @@
+export type Assertion = { pointer: string; equals: string | number | boolean | null };
+export type Account = { id: string; name: string; tenant_id: string; roles: string[]; auth_env: string; precheck: { path: string; conditions: Assertion[] } };
+export type TestCase = { id: string; name: string; resource_id: string; tenant_id: string; owner_account_id: string; method: 'GET'; path: string; query: Record<string, string>; baseline_account: string; permissions: Record<string, 'allow' | 'deny'>; success_conditions: Assertion[]; deny_statuses: number[]; deny_conditions: Assertion[] };
+export type Project = { schema_version: number; id: string; name: string; base_url: string; allowed_origins: string[]; settings: { timeout: number; request_rate: number; response_size_limit: number }; accounts: Account[]; cases: TestCase[] };
+export type Verdict = 'PASS' | 'VIOLATION' | 'INCONCLUSIVE' | 'ERROR';
+export type Proof = { pointer: string; expected: unknown; observed: unknown; matched: boolean };
+export type Result = { case_id: string; case_name: string; account_id: string; account_name: string; tenant_id: string; resource_tenant_id: string; expected: string; method: string; path: string; verdict: Verdict; reason_code: string; reason: string; observed_status: number | null; elapsed_ms: number; evidence: Proof[]; identity_verified: boolean; baseline_verified: boolean };
+export type RunSummary = { id: string; project_id: string; project_name: string; started_at: string; finished_at: string | null; status: string; total: number; completed: number; request_count: number; counts: Record<Verdict, number> };
+export type Run = RunSummary & { project: Project; results: Result[]; identities: Record<string, { verified: boolean; reason_code: string; status: number | null }>; baselines: Record<string, { verified: boolean; status: number | null }>; error?: string };
+export type Bootstrap = { version: string; csrf_token: string; projects: Project[]; runs: RunSummary[]; active_run: string | null; credential_state: Record<string, boolean> };

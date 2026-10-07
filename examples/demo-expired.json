@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "id": "demo-expired",
+  "name": "Demo · Geçersiz oturum",
+  "base_url": "http://127.0.0.1:8768",
+  "allowed_origins": [
+    "http://127.0.0.1:8768"
+  ],
+  "settings": {
+    "timeout": 3,
+    "request_rate": 12,
+    "response_size_limit": 262144
+  },
+  "accounts": [
+    {
+      "id": "ayse",
+      "name": "Ayşe",
+      "tenant_id": "org-a",
+      "roles": [
+        "user"
+      ],
+      "auth_env": "TENANTLENS_DEMO_AYSE_TOKEN",
+      "precheck": {
+        "path": "/api/whoami",
+        "conditions": [
+          {
+            "pointer": "/id",
+            "equals": "ayse"
+          },
+          {
+            "pointer": "/tenant_id",
+            "equals": "org-a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "can",
+      "name": "Can",
+      "tenant_id": "org-a",
+      "roles": [
+        "admin"
+      ],
+      "auth_env": "TENANTLENS_DEMO_CAN_TOKEN",
+      "precheck": {
+        "path": "/api/whoami",
+        "conditions": [
+          {
+            "pointer": "/id",
+            "equals": "can"
+          },
+          {
+            "pointer": "/tenant_id",
+            "equals": "org-a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "bora",
+      "name": "Bora",
+      "tenant_id": "org-b",
+      "roles": [
+        "user"
+      ],
+      "auth_env": "TENANTLENS_DEMO_BORA_TOKEN",
+      "precheck": {
+        "path": "/api/whoami",
+        "conditions": [
+          {
+            "pointer": "/id",
+            "equals": "bora"
+          },
+          {
+            "pointer": "/tenant_id",
+            "equals": "org-b"
+          }
+        ]
+      }
+    }
+  ],
+  "cases": [
+    {
+      "id": "invoice-a",
+      "name": "Ayşe’nin faturası",
+      "resource_id": "inv-a-101",
+      "tenant_id": "org-a",
+      "owner_account_id": "ayse",
+      "method": "GET",
+      "path": "/api/invoices/inv-a-101",
+      "query": {},
+      "baseline_account": "ayse",
+      "permissions": {
+        "ayse": "allow",
+        "can": "allow",
+        "bora": "deny"
+      },
+      "success_conditions": [
+        {
+          "pointer": "/id",
+          "equals": "inv-a-101"
+        },
+        {
+          "pointer": "/organization_id",
+          "equals": "org-a"
+        }
+      ],
+      "deny_statuses": [
+        403,
+        404
+      ],
+      "deny_conditions": []
+    },
+    {
+      "id": "admin-report",
+      "name": "A şirketi yönetici raporu",
+      "resource_id": "report-a",
+      "tenant_id": "org-a",
+      "owner_account_id": "can",
+      "method": "GET",
+      "path": "/api/admin/report",
+      "query": {},
+      "baseline_account": "can",
+      "permissions": {
+        "ayse": "deny",
+        "can": "allow",
+        "bora": "deny"
+      },
+      "success_conditions": [
+        {
+          "pointer": "/id",
+          "equals": "report-a"
+        },
+        {
+          "pointer": "/organization_id",
+          "equals": "org-a"
+        }
+      ],
+      "deny_statuses": [
+        403,
+        404
+      ],
+      "deny_conditions": []
+    },
+    {
+      "id": "invoice-b",
+      "name": "Bora’nın faturası",
+      "resource_id": "inv-b-201",
+      "tenant_id": "org-b",
+      "owner_account_id": "bora",
+      "method": "GET",
+      "path": "/api/invoices/inv-b-201",
+      "query": {},
+      "baseline_account": "bora",
+      "permissions": {
+        "ayse": "deny",
+        "can": "deny",
+        "bora": "allow"
+      },
+      "success_conditions": [
+        {
+          "pointer": "/id",
+          "equals": "inv-b-201"
+        },
+        {
+          "pointer": "/organization_id",
+          "equals": "org-b"
+        }
+      ],
+      "deny_statuses": [
+        403,
+        404
+      ],
+      "deny_conditions": []
+    }
+  ]
+}

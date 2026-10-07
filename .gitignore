@@ -1,0 +1,15 @@
+.tenantlens/
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3*
+.env
+.env.*
+node_modules/
+reports/
+dist/
+*.egg-info/
+build/
+*.zip
+playwright-report/
+test-results/

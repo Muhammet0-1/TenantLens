@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tenantlens"
+version = "0.1.0"
+description = "Evidence-based API authorization tests with a local web workspace"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = []
+keywords = ["authorization", "multi-tenant", "api-security", "access-control", "idor"]
+
+[project.scripts]
+tenantlens = "tenantlens.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["tenantlens*"]
+
+[tool.setuptools.package-data]
+tenantlens = ["static/*", "static/assets/*"]

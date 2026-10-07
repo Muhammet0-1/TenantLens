@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "id": "custom-project",
+  "name": "My API · Tenant boundaries",
+  "base_url": "https://api.example.test",
+  "allowed_origins": [
+    "https://api.example.test:443"
+  ],
+  "settings": {
+    "timeout": 3,
+    "request_rate": 12,
+    "response_size_limit": 262144
+  },
+  "accounts": [
+    {
+      "id": "user-a",
+      "name": "User-A",
+      "tenant_id": "org-a",
+      "roles": [
+        "user"
+      ],
+      "auth_env": "TENANTLENS_USER_A_TOKEN",
+      "precheck": {
+        "path": "/api/whoami",
+        "conditions": [
+          {
+            "pointer": "/id",
+            "equals": "user-a"
+          },
+          {
+            "pointer": "/tenant_id",
+            "equals": "org-a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "user-b",
+      "name": "User-B",
+      "tenant_id": "org-b",
+      "roles": [
+        "user"
+      ],
+      "auth_env": "TENANTLENS_USER_B_TOKEN",
+      "precheck": {
+        "path": "/api/whoami",
+        "conditions": [
+          {
+            "pointer": "/id",
+            "equals": "user-b"
+          },
+          {
+            "pointer": "/tenant_id",
+            "equals": "org-b"
+          }
+        ]
+      }
+    }
+  ],
+  "cases": [
+    {
+      "id": "invoice-a",
+      "name": "Ayşe’nin faturası",
+      "resource_id": "inv-a-101",
+      "tenant_id": "org-a",
+      "owner_account_id": "user-a",
+      "method": "GET",
+      "path": "/api/invoices/inv-a-101",
+      "query": {},
+      "baseline_account": "user-a",
+      "permissions": {
+        "user-a": "allow",
+        "user-b": "deny"
+      },
+      "success_conditions": [
+        {
+          "pointer": "/id",
+          "equals": "inv-a-101"
+        },
+        {
+          "pointer": "/organization_id",
+          "equals": "org-a"
+        }
+      ],
+      "deny_statuses": [
+        403,
+        404
+      ],
+      "deny_conditions": []
+    },
+    {
+      "id": "invoice-b",
+      "name": "Bora’nın faturası",
+      "resource_id": "inv-b-201",
+      "tenant_id": "org-b",
+      "owner_account_id": "user-b",
+      "method": "GET",
+      "path": "/api/invoices/inv-b-201",
+      "query": {},
+      "baseline_account": "user-b",
+      "permissions": {
+        "user-a": "deny",
+        "user-b": "allow"
+      },
+      "success_conditions": [
+        {
+          "pointer": "/id",
+          "equals": "inv-b-201"
+        },
+        {
+          "pointer": "/organization_id",
+          "equals": "org-b"
+        }
+      ],
+      "deny_statuses": [
+        403,
+        404
+      ],
+      "deny_conditions": []
+    }
+  ]
+}
