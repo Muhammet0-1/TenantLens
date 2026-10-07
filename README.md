@@ -145,6 +145,16 @@ editing/export/history/cancellation, and generates demo screenshots.
 GitHub Actions configuration is included for Python 3.11–3.13 and the frontend
 build/browser checks. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Continuous integration
+
+The [Checks workflow](https://github.com/Muhammet0-1/TenantLens/actions/workflows/ci.yml)
+runs the **66 Python tests** on Python 3.11, 3.12 and 3.13, then builds the panel
+and runs **23 browser checks** with Chromium. The badge at the top reports the
+actual GitHub Actions result. Open a run to inspect each job's logs.
+
+Checks run on pushes and pull requests. A manual run is also available from
+**Actions → Checks → Run workflow**, using the `MS` branch.
+
 ## Repository map
 
 | Path | Purpose |
