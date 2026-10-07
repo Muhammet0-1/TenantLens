@@ -2,8 +2,27 @@
 
 Validated on 2026-10-07 in Linux x86_64 with Python 3.12.14, Node 24.19.0,
 and headless Chromium 153.0.8010.0. Windows, macOS and CachyOS were not directly
-tested. The source is designed for Python 3.11+; the included CI matrix has not
-yet run on a published repository.
+tested. The source is designed for Python 3.11+.
+
+## GitHub Actions verification
+
+The published repository's [Checks workflow](https://github.com/Muhammet0-1/TenantLens/actions/workflows/ci.yml)
+completed successfully on 2026-10-07 for commit
+`aa8d4327017bddd6c663f15148e67ba387db8b7b`.
+The [successful run and job logs](https://github.com/Muhammet0-1/TenantLens/actions/runs/37592958082)
+record:
+
+| Job | Result |
+| --- | --- |
+| Python 3.11 | 66 tests passed; no skips |
+| Python 3.12 | 66 tests passed; no skips |
+| Python 3.13 | 66 tests passed; no skips |
+| Chromium browser | 23 checks passed |
+| TypeScript and production build | Passed in the browser job |
+
+The workflow runs on pushes, pull requests and manual dispatches. The README's
+live status badge links to the current workflow results; the run above is a
+fixed validation record.
 
 ## Python checks
 
