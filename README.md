@@ -1,135 +1,144 @@
 # TenantLens
 
-[![Checks](https://github.com/Muhammet0-1/TenantLens/actions/workflows/ci.yml/badge.svg)](https://github.com/Muhammet0-1/TenantLens/actions/workflows/ci.yml)
+[![Testler](https://github.com/Muhammet0-1/TenantLens/actions/workflows/ci.yml/badge.svg)](https://github.com/Muhammet0-1/TenantLens/actions/workflows/ci.yml)
 
-**Evidence-based API authorization tests, with a local web workspace.**
+**Yerel web paneliyle, kanıta dayalı API yetkilendirme testleri.**
 
-TenantLens compares an explicit access policy against real API responses across
-accounts, roles and tenants. It checks account identity and an allowed resource
-baseline before evaluating each matrix cell. A `200 OK` alone cannot establish
-that a forbidden account accessed the expected resource.
+TenantLens; kullanıcı, rol ve şirket hesaplarının gerçek API yanıtlarını
+tanımladığın erişim politikasıyla karşılaştırır. İzin matrisindeki her hücreyi
+değerlendirmeden önce hesap kimliğini ve kaynağa erişmesine izin verilen bir
+hesabın referans yanıtını (baseline) doğrular. Tek başına `200 OK` yanıtı,
+yasaklı bir hesabın beklenen kaynağa eriştiğini kanıtlamaz.
 
-[Türkçe kullanım rehberi](KULLANIM.md) · [Architecture](docs/architecture.md) ·
-[Security boundaries](SECURITY.md) · [Validation results](docs/validation.md)
+[Kullanım rehberi](KULLANIM.md) · [Mimari](docs/architecture.md) ·
+[Güvenlik sınırları](SECURITY.md) · [Test sonuçları](docs/validation.md)
 
-![TenantLens inspecting a cross-tenant access violation](docs/screenshots/matrix-dark.png)
+![TenantLens panelinde şirketler arası erişim ihlalinin incelenmesi](docs/screenshots/matrix-dark.png)
 
-## Run the included release
+## İlk çalıştırma
 
-Requires **Python 3.11+** and a modern browser. The release includes the compiled
-React panel. Running it requires **no pip install, npm install or package download**.
+**Python 3.11+** ve güncel bir tarayıcı gerekir. Derlenmiş React paneli depoda
+hazırdır. Çalıştırmak için **pip install, npm install veya paket indirmen gerekmez**.
 
-Clone this repository (or extract the release ZIP), then run from its directory:
+Depoyu klonla veya dağıtım ZIP'ini aç. Ardından proje klasöründe çalıştır:
 
-```sh
+```fish
 git clone https://github.com/Muhammet0-1/TenantLens.git
 cd TenantLens
 python3 -m tenantlens serve --demo
 ```
 
-Open **http://127.0.0.1:8765**. Select a demo project and click **Testi çalıştır**.
-Stop the server with `Ctrl+C`. On Windows, use `py -3` in place of `python3`.
+Tarayıcıda **http://127.0.0.1:8765** adresini aç. Bir demo projesi seç ve
+**Testi çalıştır** düğmesine bas. Sunucuyu `Ctrl+C` ile durdurabilirsin.
+Windows'ta `python3` yerine `py -3` kullan.
 
-| Local demo | PASS | VIOLATION | INCONCLUSIVE | ERROR | HTTP requests |
+| Yerel demo | Beklenti karşılandı (PASS) | İhlal (VIOLATION) | Belirsiz (INCONCLUSIVE) | Hata (ERROR) | HTTP isteği |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Data leakage / vulnerable | 6 | 3 | 0 | 0 | 15 |
-| Fixed authorization | 9 | 0 | 0 | 0 | 15 |
-| Expired Bora session | 4 | 0 | 5 | 0 | 9 |
+| Veri sızıntısı / hatalı yetkilendirme | 6 | 3 | 0 | 0 | 15 |
+| Düzeltilmiş yetkilendirme | 9 | 0 | 0 | 0 | 15 |
+| Bora'nın geçersiz oturumu | 4 | 0 | 5 | 0 | 9 |
 
-Three actual loopback API servers run on 8766–8768. Demo credentials are public,
-dummy values supplied by `--demo`. Every result is produced by the same engine
-used for custom projects.
+Demolar, 8766–8768 portlarında çalışan üç gerçek yerel API sunucusunu kullanır.
+`--demo` tarafından sağlanan kimlik bilgileri herkese açık örnek değerlerdir.
+Sonuçları, kendi projelerinde de kullanılan aynı test motoru üretir.
 
-## Workspace features
+## Panelin özellikleri
 
-- Editable account × resource permission matrix with explicit allow/deny rules.
-- Account identity assertions and resource baselines using JSON Pointers.
-- Scalar proof fields, decision reasons and observed HTTP statuses per cell.
-- Project creation, validated JSON import/export and account/resource editing.
-- Background execution, progress and cancellation; one active run per workspace.
-- SQLite persistence and immutable completed run snapshots.
-- Standalone escaped HTML and structured JSON reports.
-- Dark/light themes and a responsive Turkish interface.
-- CLI sharing the engine, fixtures and report generator with the panel.
+- Açık İzinli / Yasak kurallarıyla düzenlenebilir hesap × kaynak izin matrisi.
+- JSON Pointer ile hesap kimliği ve kaynak referans yanıtı doğrulaması.
+- Her hücrede tekil kanıt değerleri, karar gerekçesi ve gözlenen HTTP durumu.
+- Proje oluşturma, doğrulanan JSON içe/dışa aktarımı ve hesap/kaynak düzenleme.
+- Arka planda test, ilerleme takibi ve iptal; çalışma alanı başına tek etkin test.
+- SQLite ile kalıcı kayıt ve tamamlanan testlerin değiştirilemez anlık görüntüleri.
+- HTML karakterleri güvenli biçimde kaçışlanan bağımsız raporlar ve yapılandırılmış JSON raporları.
+- Koyu/açık tema ve farklı ekran boyutlarına uyumlu Türkçe arayüz.
+- Panelle aynı test motorunu, demo senaryolarını ve rapor üreticisini kullanan CLI.
 
-## What each verdict means
+## Sonuçlar ne anlama geliyor?
 
-| Verdict | Meaning |
+| Sonuç | Anlamı |
 | --- | --- |
-| `PASS` | The configured access expectation was met with the required verification. |
-| `VIOLATION` | Forbidden access matched resource proof, or expected allowed access was explicitly denied. |
-| `INCONCLUSIVE` | Identity, baseline, session or evidence could not establish the access outcome. |
-| `ERROR` | A request failed, timed out, exceeded the response limit or received a server error. |
+| `PASS` — Beklenti karşılandı | Tanımlanan erişim beklentisi, gerekli doğrulamalarla karşılandı. |
+| `VIOLATION` — İzin ihlali | Yasak erişim kaynak kanıtını sağladı veya beklenen izinli erişim açıkça reddedildi. |
+| `INCONCLUSIVE` — Belirsiz | Kimlik, referans yanıt, oturum veya kanıt; erişim sonucunu belirlemeye yetmedi. |
+| `ERROR` — Çalıştırma hatası | İstek başarısız oldu, zaman aşımına uğradı, yanıt boyutu sınırını aştı veya sunucu hatası aldı. |
 
-An expected allowed request returning a configured denial is a **policy mismatch**;
-it does not by itself demonstrate an exploitable vulnerability. Review the reason
-code. A `PASS` applies to the specified control at the time of the run.
+İzinli olması beklenen bir isteğin tanımlanan ret koşulunu sağlaması bir
+**politika uyuşmazlığıdır**; tek başına sömürülebilir bir güvenlik açığı
+göstermez. Kararın gerekçe kodunu incele. `PASS`, yalnızca tanımlanan kontrolün
+test anındaki sonucunu ifade eder.
 
-## Use your own API
+## Kendi API'ni bağlama
 
-1. Copy `examples/custom-project.json`, or create a project in the panel.
-2. Set the exact target origin, account identities and resource proof assertions.
-3. Assign one allowed baseline account to each resource and define all permissions.
-4. Set Bearer tokens in the server process environment using each `auth_env` name.
-5. Start the panel without `--demo`, import the JSON and run it.
+1. `examples/custom-project.json` dosyasını kopyala veya panelden proje oluştur.
+2. Hedef adresini protokol, alan adı ve portuyla tanımla; hesap kimliklerini ve kaynak kanıtı koşullarını belirle.
+3. Her kaynağa erişmesine izin verilen bir referans hesabı (baseline) ata ve tüm izinleri tanımla.
+4. Bearer tokenlarını, her hesabın `auth_env` adıyla sunucu sürecinin ortam değişkenlerine ekle.
+5. Paneli `--demo` olmadan başlat, JSON'u içe aktar ve testi çalıştır.
 
-For **fish**, matching the example:
+Örnek projeye uygun **fish** komutları:
 
 ```fish
-read --silent --prompt-str 'User A token: ' token_a
+read --silent --prompt-str 'A kullanıcısının tokenı: ' token_a
 set -gx TENANTLENS_USER_A_TOKEN $token_a
 set -e token_a
-read --silent --prompt-str 'User B token: ' token_b
+read --silent --prompt-str 'B kullanıcısının tokenı: ' token_b
 set -gx TENANTLENS_USER_B_TOKEN $token_b
 set -e token_b
 python3 -m tenantlens serve
 ```
 
-Tokens are read when a run starts. Restart the server after changing the token
-environment in another terminal. The UI displays environment references and
-availability; it has no token-value input or token-value API.
+Tokenlar test başlarken okunur. Ortam değişkenlerini başka bir terminalde
+değiştirirsen sunucuyu yeni değerlerle yeniden başlat. Arayüz, ortam değişkeni
+referansını ve mevcut olup olmadığını gösterir; token değerinin girildiği bir
+alan veya token değerini sunan bir API bulunmaz.
 
-For Bash, use `read -r -s` followed by `export` for the same variable names.
-Bearer is the only authentication adapter in v0.1; custom headers, cookies,
-OAuth refresh and multipart/body requests are outside this version's scope.
+Bash kullanıyorsan aynı değişken adları için `read -r -s` ve ardından `export`
+kullanabilirsin. v0.1'de yalnızca Bearer kimlik doğrulaması desteklenir. Özel
+başlıklar, çerezler, OAuth token yenileme ve multipart/gövde içeren istekler bu
+sürümün kapsamı dışındadır.
 
-## CLI
+## Terminal kullanımı
 
-```sh
+```fish
 python3 -m tenantlens check --demo fixed --output reports
 python3 -m tenantlens check --demo vulnerable --format json --output reports
 python3 -m tenantlens check examples/custom-project.json --output reports
 ```
 
-Exit codes: `0` expectations met; `1` policy violations; `2` inconclusive checks,
-request errors or startup/configuration failure. CLI demo targets use temporary
-ports and shut down after the run.
+Çıkış kodları: `0` beklentiler karşılandı; `1` politika ihlali var; `2`
+belirsiz kontrol, istek hatası veya başlatma/yapılandırma hatası var.
+CLI demoları geçici portlarda çalışır ve test sonunda kapanır.
 
-## Scope and limits
+## Kapsam ve sınırlar
 
-v0.1 supports **GET requests to one configured origin, Bearer authentication,
-JSON scalar equality assertions and sequential execution**. Limits: 12 accounts,
-50 resources, 300 matrix checks, 1–50 requests/second, 0.1–30 second socket timeout,
-and 1 KiB–1 MiB response bodies. The default limits are 12 requests/second,
-3 seconds in demos (5 for unspecified custom settings), and 256 KiB.
+v0.1; **tanımlanan tek bir hedefe GET isteklerini, Bearer kimlik doğrulamasını,
+JSON'daki tekil değerler için eşitlik koşullarını ve sıralı çalıştırmayı** destekler.
+Sınırlar: 12 hesap, 50 kaynak, 300 matris kontrolü, saniyede 1–50 istek,
+0,1–30 saniye soket zaman aşımı ve 1 KiB–1 MiB yanıt gövdesi.
+Varsayılanlar; saniyede 12 istek, demolarda 3 saniye (özel projede belirtilmezse
+5 saniye) zaman aşımı ve 256 KiB yanıt boyutudur.
 
-Requests use fresh connections, verified HTTPS certificates, no environment
-proxies, no shared cookies, no retries and no followed redirects. The panel binds
-only to `127.0.0.1` with Host, Origin and CSRF checks. It is a workstation tool;
-remote hosting or shared production service operation needs a separate design.
-See [SECURITY.md](SECURITY.md) for exact boundaries and storage behavior.
+İstekler yeni bağlantılar kullanır ve HTTPS sertifikalarını doğrular.
+Ortam değişkenlerindeki proxy ayarları kullanılmaz; hesaplar çerez paylaşmaz,
+istekler yeniden denenmez ve yönlendirmeler takip edilmez.
+Panel yalnızca `127.0.0.1` adresinde dinler; Host, Origin ve CSRF kontrolleri
+uygular. Kişisel bilgisayarda kullanılmak üzere tasarlanmıştır. Uzaktan
+barındırma veya ortak bir üretim hizmeti olarak çalıştırma ayrı bir tasarım
+gerektirir. Kesin sınırlar ve veri saklama davranışı için
+[Güvenlik sınırları](SECURITY.md) belgesine bak.
 
-## Tests and development
+## Testler ve geliştirme
 
-Python tests use only the standard library:
+Python testleri yalnızca standart kütüphaneyi kullanır:
 
-```sh
+```fish
 python3 -S -m unittest discover -s tests -v
 ```
 
-To rebuild the frontend, install Node 22.12+ (or Node 24), then:
+Paneli yeniden derlemek için Node 22.12+ veya Node 24 kur, ardından:
 
-```sh
+```fish
 cd web
 npm ci
 npm run build
@@ -137,41 +146,46 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-Package/network access is needed only for this optional development workflow.
-The checked-in `tenantlens/static` build keeps release startup offline. The
-browser smoke test starts its own temporary panel and real local targets, tests
-editing/export/history/cancellation, and generates demo screenshots.
+Paket indirme ve ağ erişimi yalnızca bu isteğe bağlı geliştirme adımları için
+gerekir. Depodaki `tenantlens/static` derlemesi uygulamanın çevrimdışı
+başlatılmasını sağlar. Tarayıcı testi kendi geçici panelini ve gerçek yerel
+API hedeflerini başlatır; düzenleme, dışa aktarma, geçmiş ve iptal işlemlerini
+sınar ve demo ekran görüntüleri oluşturur.
 
-GitHub Actions configuration is included for Python 3.11–3.13 and the frontend
-build/browser checks. See [CONTRIBUTING.md](CONTRIBUTING.md).
+GitHub Actions yapılandırması; Python 3.11–3.13 testlerini, panel derlemesini
+ve tarayıcı kontrollerini içerir.
+[Katkı rehberi](CONTRIBUTING.md) belgesinde geliştirme bilgileri bulunur.
 
-## Continuous integration
+## Otomatik testler — GitHub Actions
 
-The [Checks workflow](https://github.com/Muhammet0-1/TenantLens/actions/workflows/ci.yml)
-runs the **66 Python tests** on Python 3.11, 3.12 and 3.13, then builds the panel
-and runs **23 browser checks** with Chromium. The badge at the top reports the
-actual GitHub Actions result. Open a run to inspect each job's logs.
+[Checks iş akışı](https://github.com/Muhammet0-1/TenantLens/actions/workflows/ci.yml),
+Python 3.11, 3.12 ve 3.13 sürümlerinin her birinde **66 Python testini** çalıştırır.
+Ayrı bir işte paneli derler ve Chromium ile **23 tarayıcı kontrolü** gerçekleştirir.
+Sayfanın başındaki rozet gerçek GitHub Actions sonucunu gösterir.
+Her çalıştırmanın kayıtlarından işlerin ayrıntılarını inceleyebilirsin.
 
-Checks run on pushes and pull requests. A manual run is also available from
-**Actions → Checks → Run workflow**, using the `MS` branch.
+Testler, depoya kod gönderildiğinde ve pull request açıldığında otomatik
+çalışır. `MS` dalını seçerek **Actions → Checks → Run workflow** üzerinden
+elle de başlatabilirsin.
 
-## Repository map
+## Proje yapısı
 
-| Path | Purpose |
+| Yol | Görevi |
 | --- | --- |
-| `tenantlens/models.py` | Schema validation and JSON Pointer proof |
-| `tenantlens/engine.py` | Identity → baseline → matrix decisions |
-| `tenantlens/transport.py` | Bounded, scoped HTTP transport |
-| `tenantlens/server.py` | Local API and run coordinator |
-| `tenantlens/storage.py` | Projects and run snapshot persistence |
-| `tenantlens/demo.py` | Vulnerable/fixed/expired HTTP fixtures |
-| `tenantlens/reporting.py` | JSON and escaped HTML reports |
-| `tenantlens/static/` | Ready-to-run frontend bundle |
-| `web/` | React + TypeScript source, lockfile and browser smoke test |
-| `tests/` | Decision, HTTP integration, privacy and boundary checks |
-| `examples/` | Token-free demo/custom project definitions |
-| `scripts/package_release.py` | Clean ZIP packager |
+| `tenantlens/models.py` | Şema doğrulama ve JSON Pointer ile kanıt kontrolü |
+| `tenantlens/engine.py` | Kimlik → referans yanıt → izin matrisi kararları |
+| `tenantlens/transport.py` | Kapsam ve limit kontrolleriyle HTTP iletişimi |
+| `tenantlens/server.py` | Yerel API ve test koordinasyonu |
+| `tenantlens/storage.py` | Projelerin ve test anlık görüntülerinin kalıcı kaydı |
+| `tenantlens/demo.py` | Hatalı/düzeltilmiş yetkilendirme ve geçersiz oturum HTTP demoları |
+| `tenantlens/reporting.py` | JSON ve güvenli HTML raporları |
+| `tenantlens/static/` | Çalıştırmaya hazır panel dosyaları |
+| `web/` | React + TypeScript kaynak kodu, bağımlılık kilit dosyası ve tarayıcı testi |
+| `tests/` | Karar, HTTP entegrasyonu, gizlilik ve sınır kontrolleri |
+| `examples/` | Token değerleri içermeyen demo ve özel proje tanımları |
+| `scripts/package_release.py` | Temiz ZIP paketi oluşturma betiği |
 
-## License
+## Lisans
 
-MIT. Bundled third-party notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+MIT. Pakete dahil edilen üçüncü taraf bileşenlerin bildirimleri
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) dosyasındadır.
